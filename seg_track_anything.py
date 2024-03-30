@@ -219,15 +219,18 @@ def video_type_input_tracking(SegTracker, input_video, io_args, video_name, fram
     print("\n{} saved".format(io_args['output_video']))
     print('\nfinished')
 
+    print("Preparing tracking data...")
+
+    # export json
+    tracking_composer.export_to_json(f"{io_args['tracking_result_dir']}/{video_name}_tracking_data.json")
+    print(f"{io_args['tracking_result_dir']}/{video_name}_tracking_data.json saved")
+
     # save colorized masks as a gif
     imageio.mimsave(io_args['output_gif'], masked_pred_list, fps=fps)
     print("{} saved".format(io_args['output_gif']))
 
     # zip predicted mask
     os.system(f"zip -r {io_args['tracking_result_dir']}/{video_name}_pred_mask.zip {io_args['output_mask_dir']}")
-
-    # export json
-    tracking_composer.export_to_json(f"{io_args['tracking_result_dir']}/{video_name}_tracking_data.json")
 
     # manually release memory (after cuda out of memory)
     del SegTracker
