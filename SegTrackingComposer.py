@@ -37,12 +37,22 @@ class SegTrackingComposer:
                 continue
             bounding_box = self.calculate_bounding_box(mask, obj_id)
             if bounding_box:
-                obj_data = {
-                    "id": str(obj_id),
-                    "bounding_box": bounding_box,
-                    "frame_number": str(frame_number)
-                }
+                obj_data = self.compose_obj_data(obj_id, bounding_box, frame_number)
                 self.tracking_data.append(obj_data)
+
+    def compose_obj_data(self, id, bounding_box, frame_number):
+        """
+        Compose object data for a single object.
+        """
+        # convert the bounding box to a list int
+        bounding_box_serializable = [int(coord) for coord in bounding_box]
+        
+        obj_data = {
+            "id": str(id),
+            "bounding_box": bounding_box_serializable,
+            "frame_number": str(frame_number)
+        }
+        return obj_data
 
     def export_to_json(self, file_path="tracking_data.json"):
         """
