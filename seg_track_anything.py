@@ -1,4 +1,5 @@
 import os
+from SegTrackingComposer import SegTrackingComposer
 import cv2
 from model_args import segtracker_args,sam_args,aot_args
 from PIL import Image
@@ -134,6 +135,8 @@ def video_type_input_tracking(SegTracker, input_video, io_args, video_name, fram
     sam_gap = SegTracker.sam_gap
     frame_idx = 0
 
+    tracking_composer = SegTrackingComposer(SegTracker)
+
     with torch.cuda.amp.autocast():
         while cap.isOpened():
             ret, frame  = cap.read()  
@@ -163,6 +166,8 @@ def video_type_input_tracking(SegTracker, input_video, io_args, video_name, fram
             
             save_prediction(pred_mask, output_mask_dir, str(frame_idx + frame_num).zfill(5) + '.png')
             pred_list.append(pred_mask)
+
+            tracking_composer.compile_tracking_data(frame_number=frame_idx+frame_num)
 
             print("processed frame {}, obj_num {}".format(frame_idx + frame_num, SegTracker.get_obj_num()),end='\r')
             frame_idx += 1
@@ -220,6 +225,9 @@ def video_type_input_tracking(SegTracker, input_video, io_args, video_name, fram
 
     # zip predicted mask
     os.system(f"zip -r {io_args['tracking_result_dir']}/{video_name}_pred_mask.zip {io_args['output_mask_dir']}")
+
+    # export json
+    tracking_composer.export_to_json(f"{io_args['tracking_result_dir']}/{video_name}_tracking_data.json")
 
     # manually release memory (after cuda out of memory)
     del SegTracker
