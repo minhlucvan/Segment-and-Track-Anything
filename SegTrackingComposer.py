@@ -38,9 +38,9 @@ class SegTrackingComposer:
             bounding_box = self.calculate_bounding_box(mask, obj_id)
             if bounding_box:
                 obj_data = {
-                    "id": obj_id,
+                    "id": str(obj_id),
                     "bounding_box": bounding_box,
-                    "frame_number": frame_number
+                    "frame_number": str(frame_number)
                 }
                 self.tracking_data.append(obj_data)
 
